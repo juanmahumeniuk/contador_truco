@@ -35,3 +35,25 @@ jobs:
           name: contador-truco-apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+
+  # Solo al subir un tag tipo v0.1.0: publica el APK como Release de GitHub.
+  release:
+    needs: apk
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: contador-truco-apk
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mv app-release.apk "contador-truco-${GITHUB_REF_NAME}.apk"
+          gh release create "$GITHUB_REF_NAME" "contador-truco-${GITHUB_REF_NAME}.apk" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Contador de Truco ${GITHUB_REF_NAME}" \
+            --notes "APK para instalar en Android. Bajalo desde el celular, abrilo y permití instalar apps desconocidas si Android lo pide."

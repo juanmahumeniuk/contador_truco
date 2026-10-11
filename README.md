@@ -18,13 +18,18 @@ App de Android (hecha con Flutter) para llevar el tanteador del truco con tus am
 
 ## Conseguir el APK
 
-El APK se compila en GitHub con el workflow [`Build APK`](.github/workflows/build-apk.yml)
+La forma más fácil: entrá a la sección **Releases** del repositorio (columna derecha de la
+página principal), abrí la última versión y bajá el archivo `.apk` directo al celular.
+
+Otra opción, un APK de cualquier commit: se compila en GitHub con el workflow [`Build APK`](.github/workflows/build-apk.yml)
 (corre solo en cada push, y también a mano desde la pestaña *Actions → Build APK → Run workflow*):
 
 1. Entrá a la pestaña **Actions** del repositorio y abrí la última ejecución en verde.
 2. Al final de la página, en **Artifacts**, bajá `contador-truco-apk` (es un zip con `app-release.apk`).
 3. Pasalo al celular, abrilo y, si Android lo pide, permití *"Instalar apps desconocidas"*
    para el navegador o el gestor de archivos que estés usando.
+
+Para publicar una versión nueva como Release, subí un tag, por ejemplo `git tag v0.2.0 && git push origin v0.2.0`.
 
 > El APK sale firmado con una clave de depuración distinta en cada compilación. Para
 > instalar una versión nueva, desinstalá primero la anterior (se pierde el marcador guardado).
