@@ -44,6 +44,6 @@ Código fuente y contacto: https://github.com/juanmahumeniuk/contador_truco
 | --- | --- |
 | Ícono de la app (512×512) | `assets/icono-512.png` |
 | Gráfico de funciones (1024×500) | `assets/grafico-de-funciones-1024x500.png` |
-| Capturas de teléfono (1080×1920), en este orden | `assets/captura-1-partida.png`, `captura-2-equipos.png`, `captura-3-a-15-puntos.png`, `captura-4-ganador.png`, `captura-5-menu.png` |
+| Capturas de teléfono (1080×1920), en este orden | `assets/captura-1-partida.png`, `captura-2-equipos.png`, `captura-3-a-15-puntos.png`, `captura-4-ganador.png`, `captura-6-acerca-de.png`, `captura-5-menu.png` |
 
 Las capturas son de la app real. Play pide entre 2 y 8 capturas de teléfono.
