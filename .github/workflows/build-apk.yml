@@ -1,0 +1,128 @@
+name: Build APK y AAB
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag de la release a publicar (ej. v0.1.0). Vacío = solo compilar.'
+        required: false
+        default: ''
+      test_signing:
+        description: 'Probar la firma con una clave temporal (el .aab resultante NO sirve para Google Play).'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.7'
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      # Con los 4 secretos ANDROID_* cargados en GitHub se firma con la clave de
+      # subida de Google Play. Sin ellos se firma con la clave de depuración.
+      - name: Preparar clave de firma
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          TEST_SIGNING: ${{ inputs.test_signing }}
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/upload-keystore.jks"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            if [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ] || [ -z "$KEY_PASSWORD" ]; then
+              echo "::error::Falta alguno de los secretos ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS o ANDROID_KEY_PASSWORD."
+              exit 1
+            fi
+            echo "$KEYSTORE_BASE64" | base64 -d > "$keystore"
+          elif [ "$TEST_SIGNING" = "true" ]; then
+            echo "::warning::Firmando con una clave temporal de prueba (no sirve para Google Play)."
+            STORE_PASSWORD="$(openssl rand -hex 16)"
+            KEY_PASSWORD="$STORE_PASSWORD"
+            KEY_ALIAS="prueba"
+            keytool -genkeypair -keystore "$keystore" -storetype JKS -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 1 \
+              -storepass "$STORE_PASSWORD" -keypass "$KEY_PASSWORD" -dname "CN=Prueba de firma"
+          else
+            echo "::notice::Sin clave de subida: se firma con la clave de depuración (el .aab no sirve para Google Play)."
+            exit 0
+          fi
+          printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$keystore" "$STORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > android/key.properties
+
+      - run: flutter build apk --release
+
+      # El número de versión (versionCode) sube solo en cada ejecución, que es lo
+      # que pide Google Play en cada subida.
+      - run: flutter build appbundle --release --build-number=${{ github.run_number }}
+
+      # La política de privacidad dice que la app no pide permisos ni internet:
+      # este paso deja a la vista lo que el APK realmente declara.
+      - name: Mostrar los permisos que pide el APK
+        run: |
+          aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
+          "$aapt2" dump permissions build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Mostrar con qué clave quedó firmado el .aab
+        run: |
+          keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab \
+            | grep -E "Owner:|SHA256:"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contador-truco-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contador-truco-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  # Al subir un tag tipo v0.1.0, o al correr el workflow a mano con `release_tag`,
+  # publica el APK como Release de GitHub (si el tag no existe, lo crea).
+  release:
+    needs: apk
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: contador-truco-apk
+
+      - name: Publicar release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: |
+          mv app-release.apk "contador-truco-${TAG}.apk"
+          gh release create "$TAG" "contador-truco-${TAG}.apk" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Contador de Truco ${TAG}" \
+            --notes "APK para instalar en Android. Bajalo desde el celular, abrilo y permití instalar apps desconocidas si Android lo pide."
