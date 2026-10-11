@@ -20,7 +20,7 @@ App de Android (hecha con Flutter) para llevar el tanteador del truco con tus am
   la victoria y limpia el marcador. Las **partidas ganadas** quedan contadas en cada equipo.
 - El marcador **se guarda solo**: si se cierra la app o se apaga el celular, la partida
   sigue donde estaba.
-- Funciona sin internet, no pide permisos y no recopila ningún dato.
+- Funciona sin internet, no pide permisos del teléfono y no recopila ningún dato.
 
 ## Conseguir el APK
 

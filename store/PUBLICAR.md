@@ -86,7 +86,9 @@ en sí), pero podés elegir otra.
 - **Política de privacidad:** la URL del paso 5.
 - **Anuncios:** *No contiene anuncios*.
 - **Seguridad de los datos:** la app no recopila ni comparte ningún dato. El APK no declara el
-  permiso de internet (el workflow lista los permisos reales en cada compilación).
+  permiso de internet ni ninguno que se le muestre al usuario (el workflow lista los permisos reales
+  en cada compilación). El único que aparece, `<paquete>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`,
+  lo agrega AndroidX automáticamente, es interno y no cuenta como dato ni permiso a declarar.
 - **Clasificación de contenido:** cuestionario IARC. La app no tiene violencia, apuestas con dinero
   real ni contenido de usuarios.
 - **Público objetivo:** conviene elegir uno que no incluya menores de 13 años, para no entrar en

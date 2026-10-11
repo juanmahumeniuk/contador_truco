@@ -24,7 +24,7 @@ LIBRE PARA TODOS, PARA SIEMPRE
 • Sin anuncios.
 • Sin compras dentro de la app, sin suscripciones, sin monetización de ningún tipo.
 • Gratis para siempre.
-• Sin cuentas, sin registro y sin permisos. No recopila ningún dato tuyo y funciona sin internet.
+• Sin cuentas ni registro, y no pide ningún permiso del teléfono. No recopila ningún dato tuyo y funciona sin internet.
 
 QUÉ HACE
 • Dos equipos, "Nosotros" y "Ellos", con nombres que podés cambiar tocándolos.
