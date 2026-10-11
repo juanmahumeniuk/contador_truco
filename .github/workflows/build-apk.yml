@@ -78,6 +78,13 @@ jobs:
       # que pide Google Play en cada subida.
       - run: flutter build appbundle --release --build-number=${{ github.run_number }}
 
+      # La política de privacidad dice que la app no pide permisos ni internet:
+      # este paso deja a la vista lo que el APK realmente declara.
+      - name: Mostrar los permisos que pide el APK
+        run: |
+          aapt2="$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -1)"
+          "$aapt2" dump permissions build/app/outputs/flutter-apk/app-release.apk
+
       - name: Mostrar con qué clave quedó firmado el .aab
         run: |
           keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab \

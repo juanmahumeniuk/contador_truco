@@ -8,7 +8,7 @@ import '../state/game_controller.dart';
 import '../theme.dart';
 import '../widgets/team_panel.dart';
 
-enum _MenuAction { newGame, target15, target30, resetWins }
+enum _MenuAction { newGame, target15, target30, resetWins, about }
 
 class ScoreboardScreen extends StatefulWidget {
   const ScoreboardScreen({super.key, required this.controller});
@@ -76,6 +76,14 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
                     child: ListTile(
                       leading: Icon(Icons.emoji_events_outlined),
                       title: Text('Borrar partidas ganadas'),
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: _MenuAction.about,
+                    child: ListTile(
+                      leading: Icon(Icons.info_outline),
+                      title: Text('Acerca de'),
                     ),
                   ),
                 ],
@@ -222,6 +230,8 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
             )) {
           _controller.changeTarget(target);
         }
+      case _MenuAction.about:
+        _showAbout();
       case _MenuAction.resetWins:
         if (await _confirm(
           title: '¿Borrar partidas ganadas?',
@@ -231,6 +241,22 @@ class _ScoreboardScreenState extends State<ScoreboardScreen> {
           _controller.resetWins();
         }
     }
+  }
+
+  void _showAbout() {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Contador de Truco',
+      applicationLegalese:
+          'Código abierto, sin anuncios y sin monetización.\n'
+          'Libre para todos, para siempre.',
+      children: const [
+        SizedBox(height: 16),
+        SelectableText(
+          'Código fuente:\ngithub.com/juanmahumeniuk/contador_truco',
+        ),
+      ],
+    );
   }
 
   Future<bool> _confirm({

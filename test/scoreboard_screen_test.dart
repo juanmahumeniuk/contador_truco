@@ -230,6 +230,34 @@ void main() {
     expect(find.text('0 partidas ganadas'), findsNWidgets(2));
   });
 
+  testWidgets('"Acerca de" aclara que es libre, sin anuncios ni monetización', (
+    tester,
+  ) async {
+    await pumpApp(tester, GameController());
+
+    await tester.tap(find.byKey(const ValueKey('menu')));
+    await tester.pumpAndSettle();
+    await tapMenuItem(tester, 'Acerca de');
+
+    expect(find.text('Contador de Truco'), findsWidgets);
+    expect(
+      find.textContaining('Código abierto, sin anuncios y sin monetización.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Libre para todos, para siempre.'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('github.com/juanmahumeniuk/contador_truco'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining(RegExp('ver licencias', caseSensitive: false)),
+      findsOneWidget,
+    );
+  });
+
   group('persistencia', () {
     test('cada cambio se guarda y se recupera al volver a abrir', () async {
       final prefs = await SharedPreferences.getInstance();
