@@ -29,7 +29,7 @@ Otra opción, un APK de cualquier commit: se compila en GitHub con el workflow [
 3. Pasalo al celular, abrilo y, si Android lo pide, permití *"Instalar apps desconocidas"*
    para el navegador o el gestor de archivos que estés usando.
 
-Para publicar una versión nueva como Release, subí un tag, por ejemplo `git tag v0.2.0 && git push origin v0.2.0`.
+Para publicar una versión nueva como Release, subí un tag (`git tag v0.2.0 && git push origin v0.2.0`) o corré el workflow a mano desde *Actions → Build APK → Run workflow* escribiendo el tag en `release_tag`.
 
 > El APK sale firmado con una clave de depuración distinta en cada compilación. Para
 > instalar una versión nueva, desinstalá primero la anterior (se pierde el marcador guardado).
